@@ -1,18 +1,29 @@
 var models = require('../models');
 
+var messageFields = ['message', 'username', 'roomname'];
+
 module.exports = {
   get: function (req, res) {
-    console.log('serving request type: GET for url ' + req.url);
-    var headers = {'Content-Type': 'application/json'};
-    res.writeHead(200, headers);
-    var messages = models.messages.getAll();
-    res.end(JSON.stringify(messages));
-  }, // a function which handles a get request for all messages
+    models.messages.getAll(function (err, results) {
+      if (err) {
+        throw err;
+      }
+      res.json(results);
+    });
+  },
+
   post: function (req, res) {
-    console.log('serving request type: POST for url ' + req.url);
-    var headers = {'Content-Type': 'application/json'};
-    res.writeHead(201, headers);
-    var messages = models.messages.create();
-    res.end();
-  } // a function which handles posting a message to the database
+    console.log('LOOK HERE', req.body);
+    var params = [
+      req.body.message,
+      req.body.username,
+      req.body.roomname
+    ];
+    models.messages.create(params, function (err, results) {
+      if (err) {
+        res.sendStatus(500);
+      }
+      res.sendStatus(201);
+    });
+  }
 };
